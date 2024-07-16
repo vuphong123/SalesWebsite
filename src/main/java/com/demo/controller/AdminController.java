@@ -41,8 +41,12 @@ public class AdminController {
     public List<Category> getList(){
         return categoryService.getAll();
     }
+    @GetMapping("/admin/main")
+    public String Main(Model model){
+        return "admin/index";
+    }
     //  Category
-    @GetMapping("/admin")
+    @GetMapping("/admin/category")
     public String listCategory(Model model){
         model.addAttribute("listCate", categoryService.getAll());
         return "admin/category/list";

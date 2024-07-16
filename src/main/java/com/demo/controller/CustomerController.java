@@ -54,7 +54,7 @@ public class CustomerController {
 		new PriceRange(3,20000000, Integer.MAX_VALUE, "Trên 20 triệu")
 	);
 
-	@RequestMapping("/")
+	@GetMapping("/")
 	public String index(
 			@RequestParam(defaultValue="") String keyword,
 			@RequestParam(defaultValue="%") String categoryId,
@@ -141,7 +141,7 @@ public class CustomerController {
 		return "login";
 	}
 
-	@PostMapping("/login")
+	@PostMapping("/loginPost")
 	public String login(@RequestParam String username, @RequestParam String password, Model model) {
 		for(Account ac : loginService.getAllAccount()){
 			if(ac.getUsername().equals(username) && ac.getPassword().equals(password)) {

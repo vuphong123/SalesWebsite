@@ -6,7 +6,7 @@
   <div class="login-form">
     <h3>Đăng nhập</h3>
 
-    <form action="/login" method="POST" style="margin-top: 30px;">
+    <form action="/loginPost" method="POST" style="margin-top: 30px;">
       <div class="mt-3">
         <label for="username" class="mb-1">Tên tài khoản</label>
         <input name="username" type="text" id="username" class="form-control" />
@@ -23,6 +23,16 @@
       </div>
     </form>
     <p class="text-center mt-4"><a href="#/">Đăng ký tài khoản</a></p>
+    <div class="login-with d-flex text-center">
+      <a href="/cart" class="">
+        <img alt="" style="width:35px"
+             src="/static/images/cart.png" />
+      </a>
+      <a href="/cart" class="">
+        <img alt="" style="width:35px"
+             src="/static/images/cart.png" />
+      </a>
+    </div>
   </div>
 </div>
 

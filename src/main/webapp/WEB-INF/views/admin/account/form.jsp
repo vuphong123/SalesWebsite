@@ -22,5 +22,9 @@
         <form:input path="email" class="form-control"></form:input>
         <form:errors class="text-danger" path="email"></form:errors>
     </div>
+    <div class="mb-3">
+        <label class="form-label">Admin</label>
+        <form:checkbox path="admin"></form:checkbox>
+    </div>
     <button <c:if test="${category.id != null}">formaction="/admin/account/update/save/${category.id}" </c:if> class="btn btn-primary">Save</button>
 </form:form>
