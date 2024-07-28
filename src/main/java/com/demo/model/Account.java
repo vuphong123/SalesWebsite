@@ -28,6 +28,7 @@ public class Account implements Serializable {
     @NotBlank(message = "Email invalid")
     @Email(message = "Incorrect email format")
     private String email;
+    private Integer activated;
+    private Integer admin;
 
-    private String admin;
 }

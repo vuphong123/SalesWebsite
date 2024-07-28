@@ -1,5 +1,6 @@
 package com.demo.controller;
 
+import com.demo.Configurations.CustomUserDetail;
 import com.demo.model.Account;
 import com.demo.model.Order;
 import com.demo.model.OrderDetail;
@@ -12,6 +13,8 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -39,6 +42,10 @@ public class CustomerController {
 	private CartService getCartService(){
 		return cartService;
 	}
+	@ModelAttribute("username")
+	private UserDetails userDetails(){
+		return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	}
 	@Data @AllArgsConstructor
 	public static class PriceRange{
 		int id;
@@ -61,7 +68,6 @@ public class CustomerController {
 			@RequestParam(defaultValue="0") int priceRangeId,
 			@RequestParam(defaultValue="0") int page,
 			Model model) {
-		System.out.println("/// " + session.getAttribute("account"));
 		model.addAttribute("priceRangeList", priceRangeList);
 		model.addAttribute("categoryList", categoryService.getAll());
 		Pageable pageable = PageRequest.of(page, 5);
@@ -70,12 +76,6 @@ public class CustomerController {
 		int maxPrice = priceRangeList.get(priceRangeId).maxValue;
 
 		model.addAttribute("productList", productService.findAndSearch("%"+keyword+"%", minPrice, maxPrice,categoryId, pageable));
-		System.out.println("keyword=" + "%"+keyword+"%");
-		System.out.println("categoryId=" + categoryId);
-		System.out.println("minPrice=" + minPrice);
-		System.out.println("maxPrice=" + maxPrice);
-		System.out.println("page=" + page);
-
 		// TODO: Search & paginate
 		//paginate
 
@@ -91,10 +91,6 @@ public class CustomerController {
 
 	@RequestMapping("/add-to-cart/{id}")
 	public String addToCart(@PathVariable int id){
-		if(session.getAttribute("account") == null){
-			System.out.println("/add-to-cart/{id} " + session.getAttribute("username"));
-			return  "redirect:/login";
-		}
 		cartService.add(id);
 		return "redirect:/cart";
 	}
@@ -116,18 +112,11 @@ public class CustomerController {
 
 	@GetMapping("/cart")
 	public String cart(){
-		if(session.getAttribute("account") == null){
-			System.out.println("/add-to-cart/{id} " + session.getAttribute("username"));
-			return  "redirect:/login";
-		}
 		return "customer/cart";
 	}
 
 	@GetMapping("/checkout")
 	public String confirm(){
-		if(session.getAttribute("account") == null){
-			return  "redirect:/login";
-		}
 		return "customer/checkout";
 	}
 
@@ -141,29 +130,30 @@ public class CustomerController {
 		return "login";
 	}
 
-	@PostMapping("/loginPost")
-	public String login(@RequestParam String username, @RequestParam String password, Model model) {
-		for(Account ac : loginService.getAllAccount()){
-			if(ac.getUsername().equals(username) && ac.getPassword().equals(password)) {
-				Account acc = new Account();
-				acc.setUsername(username);
-				session.setAttribute("account", acc);
-				if(uri != null){
-					return uri;
-				}else{
-					return "redirect:/";
-				}
-			}
-		}
-		model.addAttribute("message", "Tên đăng nhập/mật khẩu không đúng");
-		return "login";
-	}
+//	@PostMapping("/loginPost")
+//	public String login(@RequestParam String username, @RequestParam String password, Model model) {
+//		for(Account ac : loginService.getAllAccount()){
+//			if(ac.getUsername().equals(username) && ac.getPassword().equals(password)) {
+//				Account acc = new Account();
+//				acc.setUsername(username);
+//				CustomUserDetail customUserDetail = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//				session.setAttribute("account", acc);
+//				if(uri != null){
+//					return uri;
+//				}else{
+//					return "redirect:/";
+//				}
+//			}
+//		}
+//		model.addAttribute("message", "Tên đăng nhập/mật khẩu không đúng");
+//		return "login";
+//	}
 
 	@PostMapping("/purchase")
 	public String purchase(@RequestParam String address, Model model){
-		System.out.println("address=" + address);
-		System.out.println("items=" + cartService.getItems());
-		Account acc = (Account) session.getAttribute("account");
+		CustomUserDetail customUserDetail = (CustomUserDetail) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Account acc = new Account();
+		acc.setUsername(customUserDetail.getUsername());
 		if(acc != null) {
 			Order order = new Order();
 			order.setAccount(acc);

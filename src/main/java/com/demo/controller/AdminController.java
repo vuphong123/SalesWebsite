@@ -3,8 +3,7 @@ package com.demo.controller;
 import com.demo.model.Account;
 import com.demo.model.Category;
 import com.demo.model.Product;
-import com.demo.repo.ProductRepo;
-import com.demo.service.AccountService;
+import com.demo.service.AccountServiceImpl;
 import com.demo.service.CategoryService;
 import com.demo.service.ProductService;
 import jakarta.servlet.ServletContext;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,8 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +32,7 @@ public class AdminController {
     @Autowired
     private CategoryService categoryService;
     @Autowired
-    private AccountService accountService;
+    private AccountServiceImpl accountServiceImpl;
     @ModelAttribute("listCategory")
     public List<Category> getList(){
         return categoryService.getAll();
@@ -157,7 +153,7 @@ public class AdminController {
     //  Account
     @GetMapping("/admin/account")
     public String listAccount(Model model){
-        model.addAttribute("listAccount", accountService.getAll());
+        model.addAttribute("listAccount", accountServiceImpl.getAll());
         return "admin/account/list";
     }
 
@@ -168,7 +164,7 @@ public class AdminController {
     @PostMapping("/admin/account/create/save")
     public String createAccountSave(@Valid @ModelAttribute("account")Account account, BindingResult bindingResult){
         if(!bindingResult.hasErrors()){
-            accountService.add(account);
+            accountServiceImpl.add(account);
             return "redirect:/admin/account";
         }
         return "admin/account/form";
@@ -176,21 +172,21 @@ public class AdminController {
 
     @GetMapping("/admin/account/update/{id}")
     public String editAccount(@PathVariable String id, Model model){
-        model.addAttribute("account", accountService.findByUser(id));
+        model.addAttribute("account", accountServiceImpl.findByUser(id));
         return "admin/account/formUpdate";
     }
     @PostMapping("/admin/account/update/save/{id}")
     public String editAccountSave(@PathVariable String id, @Valid @ModelAttribute("account") Account account, BindingResult bindingResult){
         if(!bindingResult.hasErrors()){
             account.setUsername(id);
-            accountService.add(account);
+            accountServiceImpl.add(account);
             return "redirect:/admin/account";
         }
         return "admin/account/formUpdate";
     }
     @GetMapping("/admin/account/delete/{id}")
     public String deleteAccount(@PathVariable String id, Model model){
-        accountService.delete(id);
+        accountServiceImpl.delete(id);
         return "redirect:/admin/account";
     }
 }

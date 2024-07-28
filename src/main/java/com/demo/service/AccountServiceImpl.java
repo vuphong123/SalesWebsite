@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class AccountService {
+public class AccountServiceImpl implements AccoutService{
     @Autowired
     AccountRepo accountRepo;
     public List<Account> getAll(){
@@ -22,5 +22,10 @@ public class AccountService {
     }
     public void delete(String user){
         accountRepo.deleteById(user);
+    }
+
+    @Override
+    public Account findByUsername(String UserName) {
+        return accountRepo.findByUsername(UserName);
     }
 }

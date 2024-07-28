@@ -24,7 +24,10 @@ public class MyViewResolver extends InternalResourceViewResolver {
         request.setAttribute("viewName", viewName);
         if(request.getRequestURI().startsWith("/admin")) {
             return super.resolveViewName("layout_admin", locale);
-        }else{
+        }if(request.getRequestURI().startsWith("/login")){
+            return super.resolveViewName("login", locale);
+        }
+        else{
             return super.resolveViewName("layout_customer", locale);
         }
     }

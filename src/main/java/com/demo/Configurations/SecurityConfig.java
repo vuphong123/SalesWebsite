@@ -2,14 +2,12 @@ package com.demo.Configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.socket.EnableWebSocketSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
@@ -18,37 +16,33 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 @EnableWebSecurity
 public class SecurityConfig {
     private String[] PUBLIC_ENDPOINTS = {
-            "/detail/{id}", "/login"
+            "/WEB-INF/**","/static/**" ,"/*", "/detail/{id}"
     };
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests(request -> request
-                        .requestMatchers("/WEB-INF/views/**","/static/**", "/", "/detail/{id}", "/loginPost", "/admin/**").permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers("/admin/**").hasAuthority("admin")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .successHandler(savedRequestAwareAuthenticationSuccessHandler())
+                        .loginProcessingUrl("/loginPost")
+                        .usernameParameter("username")
+                        .passwordParameter("password")
+                        .successHandler(new CustomAuthenticationSuccessHandler())
                         .permitAll())
                 .logout(logout -> logout
+                        .logoutUrl("/logout") // URL để kích hoạt logout
+                        .logoutSuccessUrl("/login?logout") // URL chuyển hướng sau khi logout thành công
+                        .invalidateHttpSession(true) // Invalidate session sau khi logout
+                        .deleteCookies("JSESSIONID") // Xóa cookie sau khi logout
                         .permitAll());
         return httpSecurity.build();
-    }
-
-    @Bean
-    public SavedRequestAwareAuthenticationSuccessHandler savedRequestAwareAuthenticationSuccessHandler() {
-        return new SavedRequestAwareAuthenticationSuccessHandler();
-    }
-
-    @Bean
-    public UserDetailsService userDetailsService() {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
-        manager.createUser(User.withDefaultPasswordEncoder()
-                .username("user")
-                .password("password")
-                .roles(String.valueOf(1))
-                .build());
-        return manager;
     }
 }

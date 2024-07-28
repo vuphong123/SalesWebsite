@@ -26,7 +26,7 @@
             <img alt="" style="width:35px"
                  src="/static/images/cart.png" />
             (${cart.total})
-            <c:if test="${sessionScope.account !=null}">${sessionScope.account.username}</c:if>
+            <c:if test="${username.getUsername() !=null}">${username.getUsername()}</c:if>
           </a>
         </li>
         <li class="nav-item no-arrow">
